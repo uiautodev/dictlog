@@ -1,7 +1,5 @@
 # slogging
 
-[![PyPI version](https://badge.fury.io/py/slogging.svg)](https://badge.fury.io/py/slogging)
-
 受 [structlog](https://github.com/hynek/structlog) 启发的轻量级结构化日志库，提供彩色终端输出和上下文绑定。
 
 相比 structlog，slogging 的方法签名完全标注了类型，编辑器可以正常补全和提示。
@@ -17,7 +15,9 @@
 ## 安装
 
 ```bash
-uv add slogging
+pip install git+https://github.com/uiautodev/slogging.git
+# 或使用 uv
+uv add git+https://github.com/uiautodev/slogging.git
 ```
 
 要求 Python >= 3.9。
