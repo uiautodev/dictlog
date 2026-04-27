@@ -4,6 +4,8 @@
 
 相比 structlog，slogging 的方法签名完全标注了类型，编辑器可以正常补全和提示。
 
+功能肯定没有structlog强大，但是终于不用再看编辑器的错误提示了。
+
 ## 特性
 
 - 结构化日志 + key-value 上下文绑定（`bind`/`unbind`）
@@ -13,6 +15,8 @@
 - 完整的类型标注，编辑器友好
 
 ## 安装
+
+slogging在pypi上已经有别人申请了，但是我也没想到更好的名字，所以就先通过git安装吧。
 
 ```bash
 pip install git+https://github.com/uiautodev/slogging.git
