@@ -6,6 +6,8 @@
 
 功能肯定没有structlog强大，但是终于不用再看编辑器的错误提示了。
 
+由于是基于系统库logging实现，使用上完全兼容。
+
 ## 特性
 
 - 结构化日志 + key-value 上下文绑定（`bind`/`unbind`）
@@ -29,22 +31,42 @@ uv add git+https://github.com/uiautodev/slogging.git
 ## 使用
 
 ```python
-from slogging import get_logger, DEBUG
+import slogging
 
 # 基本用法
-log = get_logger("myapp")
-log.info("server started", port=8080)
+slog = slogging.get_logger("myapp")
+# 调整日志级别，与logging.DEBUG等价，默认是WARNING
+slog.level = slogging.DEBUG
+
+slog.info("server started", port=8080)
 
 # 绑定上下文，后续调用自动携带
-log = log.bind(user="alice")
-log.info("user logged in")          # 自带 user=alice
-log = log.unbind("user")
-log.info("context removed")         # 不再包含 user
-
-# 调整日志级别，默认跟随logging
-log.level = DEBUG
-log.debug("detailed info")
+slog = slog.bind(user="alice")
+slog.info("user logged in")          # 自带 user=alice
+slog = slog.unbind("user")
+slog.info("context removed")         # 不再包含 user
 ```
+
+## slogging是如何调用logging的
+
+slog = slogging.get_logger("foo", name=123)
+slog.info("hello")
+
+等价于
+
+```py
+
+root_slog = logging.getLogger("slogging")
+if not root_slog.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(_formatter) # ColorFormatter
+    root_slog.addHandler(handler)
+slog = logging.getLogger("slogging.foo")
+slog.info("hello %s", "name=123")
+```
+
+> 如果不想使用`slogging.`开头，可以通过修改slogging._ROOT_NAME实现
+
 
 ## 开发
 

@@ -36,7 +36,7 @@ class ColorFormatter(logging.Formatter):
         return line
 
 
-_ROOT_NAME = "_sroot"
+_ROOT_NAME = "slogging"
 _formatter: ColorFormatter | None = None
 
 
