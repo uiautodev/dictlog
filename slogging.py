@@ -117,6 +117,9 @@ class StructLog:
     def exception(self, event: str, **kwargs: Any):
         self._logger.exception(self._fmt(event, **kwargs), stacklevel=2)
 
+    def critical(self, event: str, **kwargs: Any):
+        self._logger.critical(self._fmt(event, **kwargs), stacklevel=2)
+
 
 def get_logger(_name=None, **kwargs):
     slog = StructLog(_name)

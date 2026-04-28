@@ -1,5 +1,7 @@
 # slogging
 
+[English](README_EN.md)
+
 受 [structlog](https://github.com/hynek/structlog) 启发的轻量级结构化日志库，提供彩色终端输出和上下文绑定。
 
 相比 structlog，slogging 的方法签名完全标注了类型，编辑器可以正常补全和提示。
@@ -12,6 +14,7 @@
 
 - 结构化日志 + key-value 上下文绑定（`bind`/`unbind`）
 - 彩色终端输出，紧凑格式
+- 支持 6 种日志级别：`TRACE` < `DEBUG` < `INFO` < `WARNING` < `ERROR` < `CRITICAL`
 - 支持子 logger（用 `.` 分隔名称）
 - `exception()` 方法自动附加异常堆栈
 - 开箱即用，零配置
@@ -39,6 +42,9 @@ slog = slogging.get_logger("myapp")
 # 调整日志级别，与 logging.DEBUG 等价，默认是 WARNING
 slog.level = slogging.DEBUG
 
+# 支持的日志级别：TRACE(5) < DEBUG(10) < INFO(20) < WARNING(30) < ERROR(40) < CRITICAL(50)
+slog.trace("detailed debug info", user_id=123)  # 最详细的调试信息
+slog.debug("debug message", port=8080)
 slog.info("server started", port=8080)
 
 # 绑定上下文，后续调用自动携带
