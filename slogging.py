@@ -6,15 +6,19 @@ from typing import Any
 
 from colored import Fore, Style
 
+TRACE = 5
 DEBUG = logging.DEBUG
 INFO = logging.INFO
 WARNING = logging.WARNING
 ERROR = logging.ERROR
 CRITICAL = logging.CRITICAL
 
+logging.addLevelName(TRACE, "TRACE")
+
 
 class ColorFormatter(logging.Formatter):
     LEVEL_COLORS = {
+        TRACE: Fore.DARK_GRAY,
         logging.DEBUG: Fore.CYAN,
         logging.INFO: Fore.GREEN,
         logging.WARNING: Fore.YELLOW,
@@ -85,6 +89,9 @@ class StructLog:
         new._context = {k: v for k, v in self._context.items() if k not in keys}
         return new
 
+    def trace(self, event: str, **kwargs: Any):
+        self._logger.log(TRACE, self._fmt(event, **kwargs), stacklevel=2)
+
     def _fmt(self, event: str, **kwargs: Any) -> str:
         parts = {**self._context, **kwargs}
         if parts:
@@ -119,5 +126,10 @@ def get_logger(_name=None, **kwargs):
 
 
 if __name__ == "__main__":
-    log = get_logger()
-    log.info("hello world")
+    slog = get_logger()
+    slog.level = TRACE
+    slog.trace("trace message", user="alice", action="login")
+    slog.debug("debug message", user="bob", action="logout")
+    slog.info("info message", user="charlie", action="update")
+    slog.warning("warning message", user="dave", action="delete")
+    slog.error("error message", user="eve", action="create")
