@@ -111,8 +111,8 @@ class StructLog:
         self._logger.exception(self._fmt(event, **kwargs), stacklevel=2)
 
 
-def get_logger(name=None, level=logging.NOTSET, **kwargs):
-    slog = StructLog(name, level=level)
+def get_logger(_name=None, **kwargs):
+    slog = StructLog(_name)
     if kwargs:
         slog = slog.bind(**kwargs)
     return slog
