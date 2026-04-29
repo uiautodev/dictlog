@@ -10,6 +10,8 @@
 
 由于是基于系统库 logging 实现，使用上完全兼容。
 
+![Demo](docs/demo.png)
+
 ## 特性
 
 - 结构化日志 + key-value 上下文绑定（`bind`/`unbind`）

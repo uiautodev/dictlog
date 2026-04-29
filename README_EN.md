@@ -10,6 +10,8 @@ While not as feature-rich as structlog, you won't have to deal with editor error
 
 Built on top of Python's standard `logging` library for full compatibility.
 
+![Demo](docs/demo.png)
+
 ## Features
 
 - Structured logging with key-value context binding (`bind`/`unbind`)
