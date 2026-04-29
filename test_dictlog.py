@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-from slogging import (
+from dictlog import (
     StructLog,
     get_logger,
     ColorFormatter,
@@ -9,6 +9,7 @@ from slogging import (
     INFO,
     WARNING,
     ERROR,
+    _ROOT_NAME,
 )
 
 
@@ -129,31 +130,31 @@ class TestLogLevels:
 
     def test_debug(self):
         log = get_logger("d", level=DEBUG)
-        with self.caplog.at_level(DEBUG, logger="_sroot.d"):
+        with self.caplog.at_level(DEBUG, logger=f"{_ROOT_NAME}.d"):
             log.debug("dbg", x=1)
         assert any("dbg" in r.message for r in self.caplog.records)
 
     def test_info(self):
         log = get_logger("i")
-        with self.caplog.at_level(INFO, logger="_sroot.i"):
+        with self.caplog.at_level(INFO, logger=f"{_ROOT_NAME}.i"):
             log.info("inf", y=2)
         assert any("inf" in r.message for r in self.caplog.records)
 
     def test_warning(self):
         log = get_logger("w")
-        with self.caplog.at_level(WARNING, logger="_sroot.w"):
+        with self.caplog.at_level(WARNING, logger=f"{_ROOT_NAME}.w"):
             log.warning("wrn")
         assert any("wrn" in r.message for r in self.caplog.records)
 
     def test_error(self):
         log = get_logger("e")
-        with self.caplog.at_level(ERROR, logger="_sroot.e"):
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.e"):
             log.error("err", detail="x")
         assert any("err" in r.message for r in self.caplog.records)
 
     def test_exception(self):
         log = get_logger("exc")
-        with self.caplog.at_level(ERROR, logger="_sroot.exc"):
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.exc"):
             try:
                 1 / 0
             except ZeroDivisionError:

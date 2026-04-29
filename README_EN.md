@@ -1,10 +1,10 @@
-# slogging
+# dictlog
 
 [中文文档](README.md)
 
 A lightweight structured logging library inspired by [structlog](https://github.com/hynek/structlog), featuring colored terminal output and context binding.
 
-Compared to structlog, slogging's method signatures are fully type-annotated, enabling proper editor autocomplete and hints.
+Compared to structlog, dictlog's method signatures are fully type-annotated, enabling proper editor autocomplete and hints.
 
 While not as feature-rich as structlog, you won't have to deal with editor errors anymore.
 
@@ -24,12 +24,12 @@ Built on top of Python's standard `logging` library for full compatibility.
 
 ## Installation
 
-The name "slogging" is already taken on PyPI, but I couldn't think of a better name, so please install via git for now.
+The name "dictlog" is already taken on PyPI, but I couldn't think of a better name, so please install via git for now.
 
 ```bash
-pip install git+https://github.com/uiautodev/slogging.git@x.x.x
+pip install git+https://github.com/uiautodev/dictlog.git@x.x.x
 # or using uv
-uv add git+https://github.com/uiautodev/slogging.git@x.x.x
+uv add git+https://github.com/uiautodev/dictlog.git@x.x.x
 ```
 
 Requires Python >= 3.9.
@@ -37,45 +37,45 @@ Requires Python >= 3.9.
 ## Usage
 
 ```python
-import slogging
+import dictlog
 
 # Basic usage
-slog = slogging.get_logger("myapp")
+log = dictlog.get_logger("myapp")
 # Adjust log level, equivalent to logging.DEBUG, default is WARNING
-slog.level = slogging.DEBUG
+log.level = dictlog.DEBUG
 
 # Supported log levels: TRACE(5) < DEBUG(10) < INFO(20) < WARNING(30) < ERROR(40) < CRITICAL(50)
-slog.trace("detailed debug info", user_id=123)  # Most verbose debugging
-slog.debug("debug message", port=8080)
-slog.info("server started", port=8080)
+log.trace("detailed debug info", user_id=123)  # Most verbose debugging
+log.debug("debug message", port=8080)
+log.info("server started", port=8080)
 
 # Bind context, automatically included in subsequent calls
-slog = slog.bind(user="alice")
-slog.info("user logged in")          # includes user=alice
-slog = slog.unbind("user")
-slog.info("context removed")         # no longer includes user
+log = log.bind(user="alice")
+log.info("user logged in")          # includes user=alice
+log = log.unbind("user")
+log.info("context removed")         # no longer includes user
 ```
 
-## How slogging calls logging
+## How dictlog calls logging
 
 ```python
-slog = slogging.get_logger("foo", name=123)
-slog.info("hello")
+log = dictlog.get_logger("foo", name=123)
+log.info("hello")
 ```
 
 is equivalent to
 
 ```python
-root_slog = logging.getLogger("slogging")
-if not root_slog.handlers:
+root_log = logging.getLogger("dictlog")
+if not root_log.handlers:
     handler = logging.StreamHandler()
     handler.setFormatter(_formatter)  # ColorFormatter
-    root_slog.addHandler(handler)
-slog = logging.getLogger("slogging.foo")
-slog.info("hello %s", "name=123")
+    root_log.addHandler(handler)
+log = logging.getLogger("dictlog.foo")
+log.info("hello %s", "name=123")
 ```
 
-> If you don't want the `slogging.` prefix, you can modify `slogging._ROOT_NAME`
+> If you don't want the `dictlog.` prefix, you can modify `dictlog._ROOT_NAME`
 
 
 ## Development
@@ -88,7 +88,7 @@ uv sync
 uv run pre-commit run --all-files
 
 # Run example
-uv run slogging.py
+uv run dictlog.py
 ```
 
 ## License

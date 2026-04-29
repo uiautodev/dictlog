@@ -28,8 +28,8 @@ class ColorFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         color = self.LEVEL_COLORS.get(record.levelno, "")
-        level = f"{record.levelname[:1]}"
-        msg = f"{record.getMessage()}"
+        level = record.levelname[:1]
+        msg = record.getMessage()
         dt = datetime.datetime.fromtimestamp(record.created)
         time_str = dt.strftime("%y%m%d %H:%M:%S")
         loc = f"{record.filename}:{record.lineno}"
@@ -40,7 +40,7 @@ class ColorFormatter(logging.Formatter):
         return line
 
 
-_ROOT_NAME = "slogging"
+_ROOT_NAME = "dictlog"
 _formatter: ColorFormatter | None = None
 
 
@@ -89,50 +89,50 @@ class StructLog:
         new._context = {k: v for k, v in self._context.items() if k not in keys}
         return new
 
-    def trace(self, event: str, **kwargs: Any):
-        self._logger.log(TRACE, self._fmt(event, **kwargs), stacklevel=2)
+    def trace(self, message: str, /, **kwargs: Any):
+        self._logger.log(TRACE, self._fmt(message, **kwargs), stacklevel=2)
 
-    def _fmt(self, event: str, **kwargs: Any) -> str:
+    def _fmt(self, message: str, /, **kwargs: Any) -> str:
         parts = {**self._context, **kwargs}
         if parts:
             ctx = " ".join(
                 f"{Fore.LIGHT_GREEN_3}{k}{Style.RESET}={Fore.LIGHT_PINK_3}{v}{Style.RESET}"
                 for k, v in parts.items()
             )
-            return f"{event} {ctx}"
-        return event
+            return f"{message} {ctx}"
+        return message
 
-    def debug(self, event: str, **kwargs: Any):
-        self._logger.debug(self._fmt(event, **kwargs), stacklevel=2)
+    def debug(self, message: str, /, **kwargs: Any):
+        self._logger.debug(self._fmt(message, **kwargs), stacklevel=2)
 
-    def info(self, event: str, **kwargs: Any):
-        self._logger.info(self._fmt(event, **kwargs), stacklevel=2)
+    def info(self, message: str, /, **kwargs: Any):
+        self._logger.info(self._fmt(message, **kwargs), stacklevel=2)
 
-    def warning(self, event: str, **kwargs: Any):
-        self._logger.warning(self._fmt(event, **kwargs), stacklevel=2)
+    def warning(self, message: str, /, **kwargs: Any):
+        self._logger.warning(self._fmt(message, **kwargs), stacklevel=2)
 
-    def error(self, event: str, **kwargs: Any):
-        self._logger.error(self._fmt(event, **kwargs), stacklevel=2)
+    def error(self, message: str, /, **kwargs: Any):
+        self._logger.error(self._fmt(message, **kwargs), stacklevel=2)
 
-    def exception(self, event: str, **kwargs: Any):
-        self._logger.exception(self._fmt(event, **kwargs), stacklevel=2)
+    def exception(self, message: str, /, **kwargs: Any):
+        self._logger.exception(self._fmt(message, **kwargs), stacklevel=2)
 
-    def critical(self, event: str, **kwargs: Any):
-        self._logger.critical(self._fmt(event, **kwargs), stacklevel=2)
+    def critical(self, message: str, /, **kwargs: Any):
+        self._logger.critical(self._fmt(message, **kwargs), stacklevel=2)
 
 
-def get_logger(_name=None, **kwargs):
-    slog = StructLog(_name)
+def get_logger(name=None, /, level=logging.NOTSET, **kwargs):
+    log = StructLog(name, level=level)
     if kwargs:
-        slog = slog.bind(**kwargs)
-    return slog
+        log = log.bind(**kwargs)
+    return log
 
 
 if __name__ == "__main__":
-    slog = get_logger()
-    slog.level = TRACE
-    slog.trace("trace message", user="alice", action="login")
-    slog.debug("debug message", user="bob", action="logout")
-    slog.info("info message", user="charlie", action="update")
-    slog.warning("warning message", user="dave", action="delete")
-    slog.error("error message", user="eve", action="create")
+    log = get_logger()
+    log.level = TRACE
+    log.trace("trace message", user="alice", action="login")
+    log.debug("debug message", user="bob", action="logout")
+    log.info("info message", user="charlie", action="update")
+    log.warning("warning message", user="dave", action="delete")
+    log.error("error message", user="eve", action="create")
