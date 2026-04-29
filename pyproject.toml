@@ -1,6 +1,6 @@
 [project]
 name = "dictlog"
-version = "0.1.0"
+dynamic = ["version"]
 description = "轻量级结构化日志库，提供彩色终端输出和上下文绑定"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -37,8 +37,11 @@ line-length = 100
 select = ["E", "F", "I", "N", "W", "UP"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [dependency-groups]
 dev = [
