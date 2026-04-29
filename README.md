@@ -24,12 +24,10 @@
 
 ## 安装
 
-dictlog 在 PyPI 上已经有别人申请了，但是我也没想到更好的名字，所以就先通过 git 安装吧。
-
 ```bash
-pip install git+https://github.com/uiautodev/dictlog.git@x.x.x
+pip install dictlog
 # 或使用 uv
-uv add git+https://github.com/uiautodev/dictlog.git@x.x.x
+uv add dictlog
 ```
 
 要求 Python >= 3.9。
@@ -93,4 +91,4 @@ uv run dictlog.py
 
 ## License
 
-MIT
+[MIT](LICENSE)

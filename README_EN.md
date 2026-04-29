@@ -24,12 +24,10 @@ Built on top of Python's standard `logging` library for full compatibility.
 
 ## Installation
 
-The name "dictlog" is already taken on PyPI, but I couldn't think of a better name, so please install via git for now.
-
 ```bash
-pip install git+https://github.com/uiautodev/dictlog.git@x.x.x
+pip install dictlog
 # or using uv
-uv add git+https://github.com/uiautodev/dictlog.git@x.x.x
+uv add dictlog
 ```
 
 Requires Python >= 3.9.
@@ -93,4 +91,4 @@ uv run dictlog.py
 
 ## License
 
-MIT
+[MIT](LICENSE)
