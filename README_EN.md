@@ -18,7 +18,7 @@ Built on top of Python's standard `logging` library for full compatibility.
 - Colored terminal output with compact format
 - Supports 6 log levels: `TRACE` < `DEBUG` < `INFO` < `WARNING` < `ERROR` < `CRITICAL`
 - Supports child loggers (names separated by `.`)
-- `exception()` method automatically attaches exception stack traces; all log methods support `exc_info` parameter, consistent with the standard `logging` library
+- `exception()` method automatically attaches exception stack traces; all log methods support `exc_info`, `*args` (`%`-style formatting), and `stacklevel` parameters, consistent with the standard `logging` library
 - Works out of the box, zero configuration required
 - Complete type annotations, editor-friendly
 
@@ -46,6 +46,14 @@ log.level = dictlog.DEBUG
 log.trace("detailed debug info", user_id=123)  # Most verbose debugging
 log.debug("debug message", port=8080)
 log.info("server started", port=8080)
+
+# %-style format args, consistent with logging usage
+log.info("hello %s", "world")
+log.debug("x=%d y=%d", 1, 2)
+
+# Custom stacklevel (default 1, meaning the direct caller's frame)
+def my_wrapper():
+    log.info("from wrapper", stacklevel=2)  # reports the line that called my_wrapper()
 
 # Bind context, automatically included in subsequent calls
 log = log.bind(user="alice")

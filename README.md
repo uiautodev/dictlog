@@ -18,7 +18,7 @@
 - 彩色终端输出，紧凑格式
 - 支持 6 种日志级别：`TRACE` < `DEBUG` < `INFO` < `WARNING` < `ERROR` < `CRITICAL`
 - 支持子 logger（用 `.` 分隔名称）
-- `exception()` 方法自动附加异常堆栈；所有日志方法均支持 `exc_info` 参数，与标准 `logging` 保持一致
+- `exception()` 方法自动附加异常堆栈；所有日志方法均支持 `exc_info`、`*args`（`%`-style 格式化）和 `stacklevel` 参数，与标准 `logging` 保持一致
 - 开箱即用，零配置
 - 完整的类型标注，编辑器友好
 
@@ -46,6 +46,14 @@ log.level = dictlog.DEBUG
 log.trace("detailed debug info", user_id=123)  # 最详细的调试信息
 log.debug("debug message", port=8080)
 log.info("server started", port=8080)
+
+# % 风格格式化参数，与 logging 用法一致
+log.info("hello %s", "world")
+log.debug("x=%d y=%d", 1, 2)
+
+# 自定义 stacklevel（默认 1，即直接调用方的帧）
+def my_wrapper():
+    log.info("from wrapper", stacklevel=2)  # 上报到调用 my_wrapper() 的代码行
 
 # 绑定上下文，后续调用自动携带
 log = log.bind(user="alice")
