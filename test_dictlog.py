@@ -162,3 +162,48 @@ class TestLogLevels:
         records = [r for r in self.caplog.records if "crash" in r.message]
         assert len(records) == 1
         assert records[0].exc_info is not None
+
+    def test_info_exc_info_true(self):
+        log = get_logger("ei_info")
+        with self.caplog.at_level(INFO, logger=f"{_ROOT_NAME}.ei_info"):
+            try:
+                raise RuntimeError("test error")
+            except RuntimeError:
+                log.info("info with exc", exc_info=True)
+        records = [r for r in self.caplog.records if "info with exc" in r.message]
+        assert len(records) == 1
+        assert records[0].exc_info is not None
+        assert records[0].exc_info[0] is RuntimeError
+
+    def test_error_exc_info_true(self):
+        log = get_logger("ei_error")
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.ei_error"):
+            try:
+                raise ValueError("val error")
+            except ValueError:
+                log.error("error with exc", exc_info=True)
+        records = [r for r in self.caplog.records if "error with exc" in r.message]
+        assert len(records) == 1
+        assert records[0].exc_info[0] is ValueError
+
+    def test_debug_exc_info_default_false(self):
+        log = get_logger("ei_debug", level=DEBUG)
+        with self.caplog.at_level(DEBUG, logger=f"{_ROOT_NAME}.ei_debug"):
+            try:
+                raise TypeError("ignored")
+            except TypeError:
+                log.debug("debug no exc")
+        records = [r for r in self.caplog.records if "debug no exc" in r.message]
+        assert len(records) == 1
+        assert not records[0].exc_info
+
+    def test_exception_exc_info_default_true(self):
+        log = get_logger("ei_exc2")
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.ei_exc2"):
+            try:
+                raise KeyError("key")
+            except KeyError:
+                log.exception("exception default")
+        records = [r for r in self.caplog.records if "exception default" in r.message]
+        assert len(records) == 1
+        assert records[0].exc_info is not None

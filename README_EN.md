@@ -18,7 +18,7 @@ Built on top of Python's standard `logging` library for full compatibility.
 - Colored terminal output with compact format
 - Supports 6 log levels: `TRACE` < `DEBUG` < `INFO` < `WARNING` < `ERROR` < `CRITICAL`
 - Supports child loggers (names separated by `.`)
-- `exception()` method automatically attaches exception stack traces
+- `exception()` method automatically attaches exception stack traces; all log methods support `exc_info` parameter, consistent with the standard `logging` library
 - Works out of the box, zero configuration required
 - Complete type annotations, editor-friendly
 
@@ -52,6 +52,14 @@ log = log.bind(user="alice")
 log.info("user logged in")          # includes user=alice
 log = log.unbind("user")
 log.info("context removed")         # no longer includes user
+
+# Capture exception with stack trace, consistent with logging usage
+try:
+    1 / 0
+except ZeroDivisionError:
+    log.error("something went wrong", exc_info=True)
+    # or use exception(), which defaults to exc_info=True
+    log.exception("something went wrong")
 ```
 
 ## How dictlog calls logging

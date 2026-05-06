@@ -18,7 +18,7 @@
 - 彩色终端输出，紧凑格式
 - 支持 6 种日志级别：`TRACE` < `DEBUG` < `INFO` < `WARNING` < `ERROR` < `CRITICAL`
 - 支持子 logger（用 `.` 分隔名称）
-- `exception()` 方法自动附加异常堆栈
+- `exception()` 方法自动附加异常堆栈；所有日志方法均支持 `exc_info` 参数，与标准 `logging` 保持一致
 - 开箱即用，零配置
 - 完整的类型标注，编辑器友好
 
@@ -52,6 +52,14 @@ log = log.bind(user="alice")
 log.info("user logged in")          # 自带 user=alice
 log = log.unbind("user")
 log.info("context removed")         # 不再包含 user
+
+# 捕获异常并附加堆栈，与 logging 用法一致
+try:
+    1 / 0
+except ZeroDivisionError:
+    log.error("something went wrong", exc_info=True)
+    # 或使用 exception()，默认 exc_info=True
+    log.exception("something went wrong")
 ```
 
 ## dictlog 是如何调用 logging 的
