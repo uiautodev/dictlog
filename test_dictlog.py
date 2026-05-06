@@ -184,6 +184,7 @@ class TestLogLevels:
                 log.error("error with exc", exc_info=True)
         records = [r for r in self.caplog.records if "error with exc" in r.message]
         assert len(records) == 1
+        assert records[0].exc_info is not None
         assert records[0].exc_info[0] is ValueError
 
     def test_debug_exc_info_default_false(self):
@@ -194,6 +195,28 @@ class TestLogLevels:
             except TypeError:
                 log.debug("debug no exc")
         records = [r for r in self.caplog.records if "debug no exc" in r.message]
+        assert len(records) == 1
+        assert not records[0].exc_info
+
+    def test_warning_exc_info_default_false(self):
+        log = get_logger("ei_warn")
+        with self.caplog.at_level(WARNING, logger=f"{_ROOT_NAME}.ei_warn"):
+            try:
+                raise OSError("ignored")
+            except OSError:
+                log.warning("warn no exc")
+        records = [r for r in self.caplog.records if "warn no exc" in r.message]
+        assert len(records) == 1
+        assert not records[0].exc_info
+
+    def test_critical_exc_info_default_false(self):
+        log = get_logger("ei_crit")
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.ei_crit"):
+            try:
+                raise OSError("ignored")
+            except OSError:
+                log.critical("crit no exc")
+        records = [r for r in self.caplog.records if "crit no exc" in r.message]
         assert len(records) == 1
         assert not records[0].exc_info
 
