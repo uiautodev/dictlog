@@ -86,6 +86,17 @@ class TestFormatting:
         # context value overridden: a=2 should appear (with possible ANSI codes)
         assert "a" in result and "2" in result
 
+    def test_fmt_with_args(self):
+        log = get_logger("f4")
+        result = log._fmt("hello %s", "world")
+        assert result == "hello world"
+
+    def test_fmt_with_args_and_context(self):
+        log = get_logger("f5").bind(k="v")
+        result = log._fmt("val=%d", 42)
+        assert "val=42" in result
+        assert "k" in result
+
 
 class TestColorFormatter:
     def test_format_returns_string(self):
@@ -230,3 +241,53 @@ class TestLogLevels:
         records = [r for r in self.caplog.records if "exception default" in r.message]
         assert len(records) == 1
         assert records[0].exc_info is not None
+
+    def test_info_with_args(self):
+        log = get_logger("args_i")
+        with self.caplog.at_level(INFO, logger=f"{_ROOT_NAME}.args_i"):
+            log.info("hello %s", "world")
+        records = [r for r in self.caplog.records if "hello world" in r.message]
+        assert len(records) == 1
+
+    def test_debug_with_multiple_args(self):
+        log = get_logger("args_d", level=DEBUG)
+        with self.caplog.at_level(DEBUG, logger=f"{_ROOT_NAME}.args_d"):
+            log.debug("x=%d y=%d", 1, 2)
+        records = [r for r in self.caplog.records if "x=1 y=2" in r.message]
+        assert len(records) == 1
+
+    def test_warning_with_args(self):
+        log = get_logger("args_w")
+        with self.caplog.at_level(WARNING, logger=f"{_ROOT_NAME}.args_w"):
+            log.warning("code=%s", "404")
+        records = [r for r in self.caplog.records if "code=404" in r.message]
+        assert len(records) == 1
+
+    def test_error_with_args(self):
+        log = get_logger("args_e")
+        with self.caplog.at_level(ERROR, logger=f"{_ROOT_NAME}.args_e"):
+            log.error("failed: %s", "timeout")
+        records = [r for r in self.caplog.records if "failed: timeout" in r.message]
+        assert len(records) == 1
+
+    def test_stacklevel_default(self):
+        log = get_logger("sl1")
+        with self.caplog.at_level(INFO, logger=f"{_ROOT_NAME}.sl1"):
+            log.info("stacklevel default")
+        records = [r for r in self.caplog.records if "stacklevel default" in r.message]
+        assert len(records) == 1
+        # default stacklevel=1 means the caller's frame is recorded
+        assert records[0].filename == "test_dictlog.py"
+
+    def test_stacklevel_custom(self):
+        log = get_logger("sl2")
+
+        def inner():
+            log.info("from inner", stacklevel=2)
+
+        with self.caplog.at_level(INFO, logger=f"{_ROOT_NAME}.sl2"):
+            inner()
+        records = [r for r in self.caplog.records if "from inner" in r.message]
+        assert len(records) == 1
+        # stacklevel=2 skips inner(), so caller of inner() is recorded
+        assert records[0].filename == "test_dictlog.py"

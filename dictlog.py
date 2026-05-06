@@ -97,10 +97,22 @@ class StructLog:
         new._context = {k: v for k, v in self._context.items() if k not in keys}
         return new
 
-    def trace(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.log(TRACE, self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def trace(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.log(
+            TRACE, self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def _fmt(self, message: str, /, **kwargs: Any) -> str:
+    def _fmt(self, message: str, /, *args: Any, **kwargs: Any) -> str:
+        if args:
+            message = message % args
         parts = {**self._context, **kwargs}
         if parts:
             ctx = " ".join(
@@ -110,23 +122,83 @@ class StructLog:
             return f"{message} {ctx}"
         return message
 
-    def debug(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.debug(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def debug(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.debug(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def info(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.info(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def info(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.info(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def warning(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.warning(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def warning(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.warning(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def error(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.error(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def error(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.error(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def exception(self, message: str, /, exc_info: ExcInfoType = True, **kwargs: Any):
-        self._logger.exception(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def exception(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = True,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.exception(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
-    def critical(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
-        self._logger.critical(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
+    def critical(
+        self,
+        message: str,
+        /,
+        *args: Any,
+        exc_info: ExcInfoType = False,
+        stacklevel: int = 1,
+        **kwargs: Any,
+    ):
+        self._logger.critical(
+            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+        )
 
 
 def get_logger(name=None, /, level=logging.NOTSET, **kwargs):
