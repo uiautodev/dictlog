@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import datetime
-from typing import Any
+from typing import Any, Union
 
 from colored import Fore, Style
 
@@ -14,6 +14,14 @@ ERROR = logging.ERROR
 CRITICAL = logging.CRITICAL
 
 logging.addLevelName(TRACE, "TRACE")
+
+ExcInfoType = Union[
+    bool,
+    BaseException,
+    tuple[type[BaseException], BaseException, Any],
+    tuple[None, None, None],
+    None,
+]
 
 
 class ColorFormatter(logging.Formatter):
@@ -89,8 +97,8 @@ class StructLog:
         new._context = {k: v for k, v in self._context.items() if k not in keys}
         return new
 
-    def trace(self, message: str, /, **kwargs: Any):
-        self._logger.log(TRACE, self._fmt(message, **kwargs), stacklevel=2)
+    def trace(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.log(TRACE, self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
     def _fmt(self, message: str, /, **kwargs: Any) -> str:
         parts = {**self._context, **kwargs}
@@ -102,23 +110,23 @@ class StructLog:
             return f"{message} {ctx}"
         return message
 
-    def debug(self, message: str, /, **kwargs: Any):
-        self._logger.debug(self._fmt(message, **kwargs), stacklevel=2)
+    def debug(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.debug(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
-    def info(self, message: str, /, **kwargs: Any):
-        self._logger.info(self._fmt(message, **kwargs), stacklevel=2)
+    def info(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.info(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
-    def warning(self, message: str, /, **kwargs: Any):
-        self._logger.warning(self._fmt(message, **kwargs), stacklevel=2)
+    def warning(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.warning(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
-    def error(self, message: str, /, **kwargs: Any):
-        self._logger.error(self._fmt(message, **kwargs), stacklevel=2)
+    def error(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.error(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
-    def exception(self, message: str, /, **kwargs: Any):
-        self._logger.exception(self._fmt(message, **kwargs), stacklevel=2)
+    def exception(self, message: str, /, exc_info: ExcInfoType = True, **kwargs: Any):
+        self._logger.exception(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
-    def critical(self, message: str, /, **kwargs: Any):
-        self._logger.critical(self._fmt(message, **kwargs), stacklevel=2)
+    def critical(self, message: str, /, exc_info: ExcInfoType = False, **kwargs: Any):
+        self._logger.critical(self._fmt(message, **kwargs), stacklevel=2, exc_info=exc_info)
 
 
 def get_logger(name=None, /, level=logging.NOTSET, **kwargs):
