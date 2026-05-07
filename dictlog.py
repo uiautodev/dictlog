@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import datetime
 from typing import Any, Union
 
@@ -24,6 +25,13 @@ ExcInfoType = Union[
 ]
 
 
+def _should_enable_color() -> bool:
+    try:
+        return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+    except (AttributeError, OSError):
+        return False
+
+
 class ColorFormatter(logging.Formatter):
     LEVEL_COLORS = {
         TRACE: Fore.DARK_GRAY,
@@ -34,15 +42,20 @@ class ColorFormatter(logging.Formatter):
         logging.CRITICAL: Fore.MAGENTA,
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._color_enabled = _should_enable_color()
+
     def format(self, record: logging.LogRecord) -> str:
-        color = self.LEVEL_COLORS.get(record.levelno, "")
+        color = self.LEVEL_COLORS.get(record.levelno, "") if self._color_enabled else ""
+        reset = Style.RESET if self._color_enabled else ""
         level = record.levelname[:1]
         msg = record.getMessage()
         dt = datetime.datetime.fromtimestamp(record.created)
         time_str = dt.strftime("%y%m%d %H:%M:%S")
         loc = f"{record.filename}:{record.lineno}"
         name = record.name.split('.', maxsplit=1)[-1]
-        line = f"{color}[{level}:{name} {time_str} {loc}]{Style.RESET} {msg}"
+        line = f"{color}[{level}:{name} {time_str} {loc}]{reset} {msg}"
         if record.exc_info and record.exc_info[0] is not None:
             line += f"\n{self.formatException(record.exc_info)}"
         return line
@@ -74,6 +87,7 @@ class StructLog:
         full_name = f"{_ROOT_NAME}.{name}" if name else _ROOT_NAME
         self._logger = logging.getLogger(full_name)
         self._context = _context or {}
+        self._color_enabled = _should_enable_color()
         if level != logging.NOTSET:
             self._logger.setLevel(level)
 
@@ -89,12 +103,14 @@ class StructLog:
         new = StructLog.__new__(StructLog)
         new._logger = self._logger
         new._context = {**self._context, **kwargs}
+        new._color_enabled = self._color_enabled
         return new
 
     def unbind(self, *keys) -> "StructLog":
         new = StructLog.__new__(StructLog)
         new._logger = self._logger
         new._context = {k: v for k, v in self._context.items() if k not in keys}
+        new._color_enabled = self._color_enabled
         return new
 
     def trace(
@@ -115,10 +131,13 @@ class StructLog:
             message = message % args
         parts = {**self._context, **kwargs}
         if parts:
-            ctx = " ".join(
-                f"{Fore.LIGHT_GREEN_3}{k}{Style.RESET}={Fore.LIGHT_PINK_3}{v}{Style.RESET}"
-                for k, v in parts.items()
-            )
+            if self._color_enabled:
+                ctx = " ".join(
+                    f"{Fore.LIGHT_GREEN_3}{k}{Style.RESET}={Fore.LIGHT_PINK_3}{v}{Style.RESET}"
+                    for k, v in parts.items()
+                )
+            else:
+                ctx = " ".join(f"{k}={v}" for k, v in parts.items())
             return f"{message} {ctx}"
         return message
 
