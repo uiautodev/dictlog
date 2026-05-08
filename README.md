@@ -70,6 +70,32 @@ except ZeroDivisionError:
     log.exception("something went wrong")
 ```
 
+## 输出到日志文件
+
+dictlog 与 `logging.basicConfig` 完全兼容。通过 `basicConfig` 输出到文件时，日志内容为纯文本（包含 key-value 字段，但不包含颜色码）：
+
+```python
+import logging
+import dictlog
+
+# 配置输出到文件
+logging.basicConfig(
+    level=dictlog.INFO,
+    filename="app.log",
+    format="%(levelname)s - %(message)s"
+)
+
+log = dictlog.get_logger("myapp")
+log.info("user logged in", user="alice", ip="192.168.1.1")
+```
+
+文件 `app.log` 中的内容：
+```
+INFO - user logged in user=alice ip=192.168.1.1
+```
+
+dictlog 会同时输出到文件（通过 `basicConfig`）和终端（带颜色）。如果只需要文件输出，可以禁用 dictlog 的默认 handler。
+
 ## dictlog 是如何调用 logging 的
 
 ```python

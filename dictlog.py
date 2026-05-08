@@ -254,6 +254,7 @@ def get_logger(name=None, /, level=logging.NOTSET, **kwargs):
 if __name__ == "__main__":
     log = get_logger()
     log.level = TRACE
+    logging.basicConfig(level=TRACE, filename="dictlog.log", filemode="w", format="%(levelname)s - %(message)s")
     log.trace("trace message", user="alice", action="login")
     log.debug("debug message", user="bob", action="logout")
     log.info("info message", user="charlie", action="update")

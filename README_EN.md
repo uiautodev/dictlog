@@ -70,6 +70,32 @@ except ZeroDivisionError:
     log.exception("something went wrong")
 ```
 
+## Output to Log Files
+
+dictlog is fully compatible with `logging.basicConfig`. When outputting to files via `basicConfig`, the log content is plain text (includes key-value fields, but no color codes):
+
+```python
+import logging
+import dictlog
+
+# Configure output to file
+logging.basicConfig(
+    level=dictlog.INFO,
+    filename="app.log",
+    format="%(levelname)s - %(message)s"
+)
+
+log = dictlog.get_logger("myapp")
+log.info("user logged in", user="alice", ip="192.168.1.1")
+```
+
+Content in `app.log`:
+```
+INFO - user logged in user=alice ip=192.168.1.1
+```
+
+dictlog outputs to both the file (via `basicConfig`) and the terminal (with colors). To disable the terminal output, you can remove dictlog's default handler.
+
 ## How dictlog calls logging
 
 ```python
