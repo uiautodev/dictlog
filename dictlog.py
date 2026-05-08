@@ -47,10 +47,15 @@ class ColorFormatter(logging.Formatter):
         self._color_enabled = _should_enable_color()
 
     def format(self, record: logging.LogRecord) -> str:
+        # 使用 extra 中的 dictlog_msg（带颜色的格式化消息），如果存在
+        # 否则回退到标准 msg（纯文本，兼容 basicConfig）
+        msg = getattr(record, "dictlog_msg", None)
+        if msg is None:
+            msg = record.getMessage()
+
         color = self.LEVEL_COLORS.get(record.levelno, "") if self._color_enabled else ""
         reset = Style.RESET if self._color_enabled else ""
         level = record.levelname[:1]
-        msg = record.getMessage()
         dt = datetime.datetime.fromtimestamp(record.created)
         time_str = dt.strftime("%y%m%d %H:%M:%S")
         loc = f"{record.filename}:{record.lineno}"
@@ -122,24 +127,37 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.log(
-            TRACE, self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            TRACE, msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
-    def _fmt(self, message: str, /, *args: Any, **kwargs: Any) -> str:
+    def _fmt(self, message: str, /, *args: Any, **kwargs: Any) -> tuple[str, dict[str, Any]]:
+        """格式化消息，返回 (纯文本消息, extra 字典)
+
+        纯文本消息用于兼容 basicConfig，extra 中包含带颜色的格式化消息
+        """
         if args:
             message = message % args
         parts = {**self._context, **kwargs}
+        extra = {}
         if parts:
+            # 纯文本版本的上下文
+            plain_ctx = " ".join(f"{k}={v}" for k, v in parts.items())
+            plain_msg = f"{message} {plain_ctx}"
+
+            # 带颜色的格式化消息放在 dictlog_msg 中
             if self._color_enabled:
-                ctx = " ".join(
+                color_ctx = " ".join(
                     f"{Fore.LIGHT_GREEN_3}{k}{Style.RESET}={Fore.LIGHT_PINK_3}{v}{Style.RESET}"
                     for k, v in parts.items()
                 )
+                extra["dictlog_msg"] = f"{message} {color_ctx}"
             else:
-                ctx = " ".join(f"{k}={v}" for k, v in parts.items())
-            return f"{message} {ctx}"
-        return message
+                extra["dictlog_msg"] = plain_msg
+
+            return plain_msg, extra
+        return message, extra
 
     def debug(
         self,
@@ -150,8 +168,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.debug(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
     def info(
@@ -163,8 +182,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.info(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
     def warning(
@@ -176,8 +196,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.warning(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
     def error(
@@ -189,8 +210,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.error(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
     def exception(
@@ -202,8 +224,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.exception(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
     def critical(
@@ -215,8 +238,9 @@ class StructLog:
         stacklevel: int = 1,
         **kwargs: Any,
     ):
+        msg, extra = self._fmt(message, *args, **kwargs)
         self._logger.critical(
-            self._fmt(message, *args, **kwargs), stacklevel=stacklevel + 1, exc_info=exc_info
+            msg, stacklevel=stacklevel + 1, exc_info=exc_info, extra=extra
         )
 
 

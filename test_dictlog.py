@@ -71,31 +71,39 @@ class TestLevel:
 class TestFormatting:
     def test_fmt_with_context(self):
         log = get_logger("f1").bind(k="v")
-        result = log._fmt("hello")
-        assert "hello" in result
-        assert "k" in result
-        assert "v" in result
+        msg, extra = log._fmt("hello")
+        # msg 是纯文本，包含上下文但无颜色
+        assert msg == "hello k=v"
+        # extra 包含格式化后的消息
+        assert "hello" in extra["dictlog_msg"]
+        assert "k=v" in extra["dictlog_msg"]
 
     def test_fmt_without_context(self):
         log = get_logger("f2")
-        assert log._fmt("hello") == "hello"
+        msg, extra = log._fmt("hello")
+        # 无上下文时，返回纯文本消息，extra 为空
+        assert msg == "hello"
+        assert extra == {}
 
     def test_fmt_context_overrides(self):
         log = get_logger("f3").bind(a=1)
-        result = log._fmt("msg", a=2)
-        # context value overridden: a=2 should appear (with possible ANSI codes)
-        assert "a" in result and "2" in result
+        msg, extra = log._fmt("msg", a=2)
+        # context value overridden: a=2 should appear
+        assert "a=2" in msg
+        assert "a=2" in extra["dictlog_msg"]
 
     def test_fmt_with_args(self):
         log = get_logger("f4")
-        result = log._fmt("hello %s", "world")
-        assert result == "hello world"
+        msg, extra = log._fmt("hello %s", "world")
+        assert msg == "hello world"
+        assert extra == {}
 
     def test_fmt_with_args_and_context(self):
         log = get_logger("f5").bind(k="v")
-        result = log._fmt("val=%d", 42)
-        assert "val=42" in result
-        assert "k" in result
+        msg, extra = log._fmt("val=%d", 42)
+        assert "val=42" in msg
+        assert "k=v" in msg
+        assert "k=v" in extra["dictlog_msg"]
 
 
 class TestColorFormatter:
